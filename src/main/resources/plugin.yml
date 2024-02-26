@@ -1,4 +1,6 @@
 name: ChronoClocks
 version: '${version}'
 main: ru.cyanoriss.chronoclocks.Main
-api-version: '1.20'
+api-version: '1.17'
+commands:
+  test:
