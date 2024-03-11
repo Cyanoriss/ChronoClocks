@@ -91,12 +91,13 @@ public class ClocksCommand implements TabExecutor {
             plugin.getConfig().set("clocks." + args[1] + ".numbers-material", args[6]);
             plugin.getConfig().set("clocks." + args[1] + ".background-material", args[7]);
 
-            StringBuilder sb = new StringBuilder();
-            for (int i = 7; i < args.length; i++) {
-                sb.append(args[i]).append(" ");
+            StringBuilder font = new StringBuilder();
+            for (int i = 8; i < args.length; i++) {
+                font.append(args[i]).append(" ");
             }
 
-            plugin.getConfig().set("clocks." + args[1] + ".font", sb.toString().trim());
+            plugin.getConfig().set("clocks." + args[1] + ".font", font.toString().trim());
+            plugin.getLogger().info("ddd" + font.toString().trim() + "ddddddd");
             changeLocation(args, player);
 
             player.sendMessage(Config.getMessage("create-success")
@@ -142,6 +143,20 @@ public class ClocksCommand implements TabExecutor {
                     player.sendMessage(Config.getMessage("internal-error"));
                     return true;
                 }
+            }
+
+            if (args[2].equalsIgnoreCase("font")) {
+                StringBuilder font = new StringBuilder();
+
+                for (int i = 3; i < args.length; i++) {
+                    font.append(args[i]).append(" ");
+                }
+                plugin.getConfig().set("clocks." + args[1] + "." + args[2], font.toString().trim());
+                plugin.saveConfig();
+                player.sendMessage(Config.getMessage("edit-success")
+                        .replace("%name%", args[1])
+                );
+                return true;
             }
 
             if (args[2].equalsIgnoreCase("background-material")
