@@ -1,5 +1,5 @@
 Это плагин на майнкрафт, позволяющий создавать часы которые показывают время (да ладно)
-Скачать собранный файл https://github.com/Cyanoriss/ChronoClocks/releases/tag/1.0
+Скачать собранный файл https://github.com/Cyanoriss/ChronoClocks/releases
 
 Все команды плагина:
 
