@@ -1,0 +1,39 @@
+permission: "chronoclocks.use"
+
+messages:
+  no-perms: "&cУ вас нет прав на использование этой команды"
+  clocks-not-found: "&cЧасов с названием %name% не найдено"
+  internal-error: "&cПроверьте, что вы правильно ввели все значения"
+  create-success: "&aВы успешно создали часы %name%"
+  delete-success: "&aВы успешно удалили часы %name%"
+  movehere-success: "&aВы успешно переместили часы %name%"
+  usage:
+    - '&b---------------------'
+    - '&cИспользование:'
+    - '&f/clocks create <название> <формат> <размер цифр> <размер отступа> <блок цифр> <фоновый блок> <шрифт> &9- создать часы'
+    - ' '
+    - '&cПример:'
+    - '&f/clocks create simpleclocks HH:mm:ss 8 6 red_wool white_wool Monaco'
+    - ' '
+    - '&fРазмер отступа - количество блоков между цифрами. Подбирается отдельно для каждого шрифта и размера. Поэксперементируйте'
+    - ' '
+    - '&f/clocks delete <название> &9- удалить часы'
+    - '&f/clocks edit <название> <параметр> <значение> &9- изменить какой-то параметр у часов'
+    - '&f/clocks movehere <название> &9- переместить часы на место где вы находитесь'
+    - '&b---------------------'
+
+clocks:
+  1:
+    timezone: "UTC+4"
+    size: 8
+    spacing: 5
+    pattern: "HH:mm:ss"
+    font: "Comic Sans MS"
+    direction: "north"
+    numbers-material: red_wool
+    background-material: white_wool
+    location:
+      world: world
+      x: 385
+      y: 93
+      z: -530
