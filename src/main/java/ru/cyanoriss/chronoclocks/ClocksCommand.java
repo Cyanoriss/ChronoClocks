@@ -53,6 +53,11 @@ public class ClocksCommand implements TabExecutor {
                 Integer.parseInt(args[5]);
                 Material.valueOf(args[6].toUpperCase());
                 Material.valueOf(args[7].toUpperCase());
+                if (!Material.valueOf(args[6].toUpperCase()).isBlock()
+                        || !Material.valueOf(args[7].toUpperCase()).isBlock()) {
+                    player.sendMessage(Config.getMessage("internal-error"));
+                    return true;
+                }
             } catch (Exception e) {
                 player.sendMessage(Config.getMessage("internal-error"));
                 return true;
@@ -118,6 +123,10 @@ public class ClocksCommand implements TabExecutor {
                     || args[2].equalsIgnoreCase("numbers-material")) {
                 try {
                     Material.valueOf(args[3].toUpperCase());
+                    if (!Material.valueOf(args[3].toUpperCase()).isBlock()) {
+                        player.sendMessage(Config.getMessage("internal-error"));
+                        return true;
+                    }
                 } catch (Exception e) {
                     player.sendMessage(Config.getMessage("internal-error"));
                     return true;
@@ -202,7 +211,9 @@ public class ClocksCommand implements TabExecutor {
             if (args.length == 7 || args.length == 8) {
                 List<String> materials = new ArrayList<>();
                 for (Material material : Material.values()) {
-                    materials.add(material.name().toLowerCase());
+                    if (material.isBlock()) {
+                        materials.add(material.name().toLowerCase());
+                    }
                 }
                 return materials;
             }
