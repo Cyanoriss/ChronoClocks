@@ -27,89 +27,10 @@ public final class Main extends JavaPlugin {
         saveDefaultConfig();
 
         for (String clock : getConfig().getConfigurationSection("clocks").getKeys(false)) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    ConfigurationSection section = getConfig().getConfigurationSection("clocks." + clock);
-
-                    if (section == null) {
-                        cancel();
-                        return;
-                    }
-
-                    Location startLocation = new Location(
-                            Bukkit.getWorld(section.getString("location.world")),
-                            section.getInt("location.x"),
-                            section.getInt("location.y"),
-                            section.getInt("location.z")
-                    );
-                    Material numbersBlock = Material.valueOf(section.getString("numbers-material").toUpperCase());
-                    Material backgroundBlock = Material.valueOf(section.getString("background-material").toUpperCase());
-                    String direction = section.getString("direction");
-                    String font = section.getString("font");
-                    int size = section.getInt("size");
-                    int spacing = section.getInt("spacing");
-                    LocalDateTime rawTime = LocalDateTime.now(ZoneId.of(section.getString("timezone")));
-                    DateTimeFormatter format = DateTimeFormatter.ofPattern(section.getString("pattern"));
-                    String formattedTime = rawTime.format(format)
-                            .replaceAll("4", "Ч");
-                    placeClocks(startLocation, direction, formattedTime, size, spacing, font, numbersBlock, backgroundBlock);
-                }
-            }.runTaskTimer(instance, 0L, getConfig().getConfigurationSection("clocks." + clock).getString("pattern").equals("HH:mm:ss") ? 20L : 60 * 20L);
+            FunctionalMethods.startClock(clock);
         }
 
-
-
-        getCommand("test").setExecutor(new ClocksCommand(instance));
-    }
-
-
-    /**
-     * Ставит в мире текст из блоков
-     */
-    private void placeClocks(Location startLocation, String direction, String text, int size, int spacing, String fontName, Material numbers, Material background) {
-        Location location = startLocation.clone();
-        for (int index = 0; index < text.length(); index++) {
-            Font font = new Font(fontName, Font.PLAIN, size);
-            BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2d = image.createGraphics();
-            g2d.setFont(font);
-            FontMetrics fm = g2d.getFontMetrics();
-            int x = (size - fm.stringWidth(String.valueOf(text.charAt(index)))) / 2;
-            int y = (size - fm.getHeight()) / 2 + fm.getAscent();
-            g2d.drawString(String.valueOf(text.charAt(index)), x, y);
-            g2d.dispose();
-
-            for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
-                    int pixel = image.getRGB(j, i);
-                    Block block;
-                    if (direction.equalsIgnoreCase("north")) {
-                        block = location.getWorld().getBlockAt(location.clone().add(j, -i, 0));
-                    } else if (direction.equalsIgnoreCase("south")) {
-                        block = location.getWorld().getBlockAt(location.clone().add(-j, -i, 0));
-                    } else if (direction.equalsIgnoreCase("west")) {
-                        block = location.getWorld().getBlockAt(location.clone().add(0, -i, -j));
-                    } else {
-                        block = location.getWorld().getBlockAt(location.clone().add(0, -i, j));
-                    }
-                    if ((pixel >> 24 & 0xFF) != 0x00) {
-                        block.setType(numbers);
-                    } else {
-                        block.setType(background);
-                    }
-                }
-            }
-
-            if (direction.equalsIgnoreCase("north")) {
-                location.add(spacing, 0, 0);
-            } else if (direction.equalsIgnoreCase("south")) {
-                location.add(-spacing, 0, 0);
-            } else if (direction.equalsIgnoreCase("west")) {
-                location.add(0, 0, -spacing);
-            } else {
-                location.add(0, 0, spacing);
-            }
-        }
+        getCommand("clocks").setExecutor(new ClocksCommand(instance));
+        getCommand("clocks").setTabCompleter(new ClocksCommand(instance));
     }
 }
