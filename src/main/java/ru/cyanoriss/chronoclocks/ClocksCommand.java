@@ -1,8 +1,6 @@
 package ru.cyanoriss.chronoclocks;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -12,7 +10,6 @@ import ru.cyanoriss.chronoclocks.util.Hex;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ClocksCommand implements TabExecutor {
@@ -61,20 +58,6 @@ public class ClocksCommand implements TabExecutor {
                 return true;
             }
 
-            String direction = null;
-
-            switch (player.getFacing()) {
-                case NORTH -> direction = "north";
-                case SOUTH -> direction = "south";
-                case WEST -> direction = "west";
-                case EAST -> direction = "east";
-            }
-
-            if (direction == null) {
-                player.sendMessage(Config.getMessage("look-not-exists"));
-                return true;
-            }
-
             if (plugin.getConfig().getConfigurationSection("clocks." + args[1]) != null) {
                 plugin.getConfig().set("clocks." + args[1], null);
                 plugin.saveConfig();
@@ -93,12 +76,7 @@ public class ClocksCommand implements TabExecutor {
             }
 
             plugin.getConfig().set("clocks." + args[1] + ".font", sb.toString().trim());
-            plugin.getConfig().set("clocks." + args[1] + ".direction", direction);
-            plugin.getConfig().set("clocks." + args[1] + ".location.world", player.getWorld().getName());
-            plugin.getConfig().set("clocks." + args[1] + ".location.x", (int) player.getLocation().getX());
-            plugin.getConfig().set("clocks." + args[1] + ".location.y", (int) player.getLocation().getY());
-            plugin.getConfig().set("clocks." + args[1] + ".location.z", (int) player.getLocation().getZ());
-            plugin.saveConfig();
+            changeLocation(args, player);
 
             player.sendMessage(Config.getMessage("create-success")
                     .replace("%name%", args[1])
@@ -108,17 +86,7 @@ public class ClocksCommand implements TabExecutor {
         }
 
         if (args[0].equalsIgnoreCase("delete")) {
-            if (args.length < 2) {
-                sendUsage(player);
-                return true;
-            }
-
-            if (plugin.getConfig().getConfigurationSection("clocks." + args[1]) == null) {
-                player.sendMessage(Config.getMessage("clocks-not-found")
-                        .replace("%name%", args[1])
-                );
-                return true;
-            }
+            if (checkSubCommands(args, player)) return true;
 
             plugin.getConfig().set("clocks." + args[1], null);
             plugin.saveConfig();
@@ -129,7 +97,74 @@ public class ClocksCommand implements TabExecutor {
             return true;
         }
 
+        if (args[0].equalsIgnoreCase("movehere")) {
+            if (checkSubCommands(args, player)) return true;
+
+            changeLocation(args, player);
+            player.sendMessage(Config.getMessage("movehere-success")
+                    .replace("%name%", args[1])
+            );
+            return true;
+        }
+
+        if (args[0].equalsIgnoreCase("edit")) {
+            if (checkSubCommands(args, player)) return true;
+
+            if (args.length < 4) {
+                sendUsage(player);
+            }
+
+            if (args[2].equalsIgnoreCase("background-material")
+                    || args[2].equalsIgnoreCase("numbers-material")) {
+                try {
+                    Material.valueOf(args[3].toUpperCase());
+                } catch (Exception e) {
+                    player.sendMessage(Config.getMessage("internal-error"));
+                    return true;
+                }
+            }
+
+            if (args[2].equalsIgnoreCase("size")
+                    || args[2].equalsIgnoreCase("spacing")) {
+                try {
+                    Integer.parseInt(args[3]);
+                    plugin.getConfig().set(args[2], Integer.parseInt(args[3]));
+                    plugin.saveConfig();
+                    player.sendMessage(Config.getMessage("edit-success"));
+                    return true;
+                } catch (NumberFormatException e) {
+                    player.sendMessage(Config.getMessage("internal-error"));
+                    return true;
+                }
+            }
+
+            plugin.getConfig().set("clocks." + args[1] + "." + args[2], args[3]);
+            plugin.saveConfig();
+            player.sendMessage(Config.getMessage("edit-success")
+                    .replace("%name%", args[1])
+            );
+            return true;
+        }
+
         return true;
+    }
+
+    /**
+     * Проверка для удаления, изменения и перемещения часов
+     */
+    private boolean checkSubCommands(String[] args, Player player) {
+        if (args.length < 2) {
+            sendUsage(player);
+            return true;
+        }
+
+        if (plugin.getConfig().getConfigurationSection("clocks." + args[1]) == null) {
+            player.sendMessage(Config.getMessage("clocks-not-found")
+                    .replace("%name%", args[1])
+            );
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -200,5 +235,27 @@ public class ClocksCommand implements TabExecutor {
         }
 
         return List.of();
+    }
+
+    private void changeLocation(String[] args, Player player) {
+        String direction = null;
+
+        switch (player.getFacing()) {
+            case NORTH -> direction = "north";
+            case SOUTH -> direction = "south";
+            case WEST -> direction = "west";
+            case EAST -> direction = "east";
+        }
+
+        if (direction == null) {
+            player.sendMessage(Config.getMessage("look-not-exists"));
+        }
+
+        plugin.getConfig().set("clocks." + args[1] + ".direction", direction);
+        plugin.getConfig().set("clocks." + args[1] + ".location.world", player.getWorld().getName());
+        plugin.getConfig().set("clocks." + args[1] + ".location.x", (int) player.getLocation().getX());
+        plugin.getConfig().set("clocks." + args[1] + ".location.y", (int) player.getLocation().getY());
+        plugin.getConfig().set("clocks." + args[1] + ".location.z", (int) player.getLocation().getZ());
+        plugin.saveConfig();
     }
 }
