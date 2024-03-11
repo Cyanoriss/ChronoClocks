@@ -9,6 +9,8 @@ import ru.cyanoriss.chronoclocks.util.Config;
 import ru.cyanoriss.chronoclocks.util.Hex;
 
 import java.awt.*;
+import java.time.DateTimeException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,8 +51,22 @@ public class ClocksCommand implements TabExecutor {
             }
 
             try {
+                ZoneId.of(args[3]);
+            } catch (DateTimeException e) {
+                player.sendMessage(Config.getMessage("internal-error"));
+                return true;
+            }
+
+            try {
                 Integer.parseInt(args[4]);
                 Integer.parseInt(args[5]);
+
+                if (Integer.parseInt(args[4]) < 1 ||
+                Integer.parseInt(args[5]) < 1) {
+                    player.sendMessage(Config.getMessage("internal-error"));
+                    return true;
+                }
+
                 Material.valueOf(args[6].toUpperCase());
                 Material.valueOf(args[7].toUpperCase());
                 if (!Material.valueOf(args[6].toUpperCase()).isBlock()
@@ -119,6 +135,15 @@ public class ClocksCommand implements TabExecutor {
                 sendUsage(player);
             }
 
+            if (args[2].equalsIgnoreCase("timezone")) {
+                try {
+                    ZoneId.of(args[3]);
+                } catch (DateTimeException e) {
+                    player.sendMessage(Config.getMessage("internal-error"));
+                    return true;
+                }
+            }
+
             if (args[2].equalsIgnoreCase("background-material")
                     || args[2].equalsIgnoreCase("numbers-material")) {
                 try {
@@ -137,9 +162,15 @@ public class ClocksCommand implements TabExecutor {
                     || args[2].equalsIgnoreCase("spacing")) {
                 try {
                     Integer.parseInt(args[3]);
-                    plugin.getConfig().set(args[2], Integer.parseInt(args[3]));
+                    if (Integer.parseInt(args[3]) < 1) {
+                        player.sendMessage(Config.getMessage("internal-error"));
+                        return true;
+                    }
+                    plugin.getConfig().set("clocks." + args[1] + "." + args[2], Integer.parseInt(args[3]));
                     plugin.saveConfig();
-                    player.sendMessage(Config.getMessage("edit-success"));
+                    player.sendMessage(Config.getMessage("edit-success")
+                            .replace("%name%", args[1])
+                    );
                     return true;
                 } catch (NumberFormatException e) {
                     player.sendMessage(Config.getMessage("internal-error"));
